@@ -1,25 +1,68 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import Form from "react-bootstrap/Form";
+import "./App.css";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Fuse from "fuse.js";
+import { Table } from "react-bootstrap";
+import { items } from "../src/data";
 
 function App() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>();
+
+  const search = (query: string) => {
+    const fuse = new Fuse(Object.values(items), {
+      includeScore: true,
+      ignoreLocation: true,
+    });
+    return fuse.search(query);
+  };
+
+  useEffect(() => {
+    setSearchResults(search(searchTerm));
+  }, [searchTerm]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container className="App">
+      <Row>
+        <Col sm={4}></Col>
+        <Col>
+          <Form.Label htmlFor="inputPassword5">Password</Form.Label>
+          <br></br>
+          <Form.Control
+            value={searchTerm}
+            onChange={(event) => {
+              setSearchTerm(event.target.value);
+            }}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {searchResults?.map((result) => {
+                return (
+                  <tr>
+                    <th>{result.item}</th>
+                    <th>{Math.floor(result.score * 100)}</th>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
